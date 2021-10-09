@@ -1,0 +1,17 @@
+[
+	{
+		"Name": "micro-gdb",
+		"Description": "gdb support for Micro",
+		"Tags": ["gdb", "c", "debug", "debugger"],
+        "Website": "https://github.com/lukhof/micro-gdb/",
+		"Versions": [
+            {
+                "Version": "1.0.0",
+                "Url": "https://github.com/lukhof/micro-gdb/archives/v0.0.1.zip",
+                "Require": {
+                    "micro": ">=2.0.0-1"
+                }
+            }
+		]
+	}
+]
