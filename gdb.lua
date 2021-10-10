@@ -92,7 +92,7 @@ end
 function onGdbStdout(outStr, args)
 		local lines = strsplitLines(outStr)
 
-		--if(gdbStoppedOnBreakpoint == false) then
+		if(gdbStoppedOnBreakpoint == false) then
 			for i = 1, #lines, 1 do
 				--check if gdb message is a breakpoint hit
 				--micro.TermMessage(lines[i])
@@ -106,31 +106,30 @@ function onGdbStdout(outStr, args)
 					local posOfSeperator = string.find(line, ":")
 					local lineOfBreakpoint = tonumber(string.sub(line, posOfSeperator + 1, lenOfLine))
 
-					--shell.JobSend(gdbJobHandle, "info locals\n")
-					--gdbAskedForInfoLocals = true
+					local tmp = ""
+					shell.JobSend(gdbJobHandle, "info locals\n")
+					gdbAskedForInfoLocals = true
+					for i = 1, #gdbInfoBuffer, 1 do
+						tmp = tmp .. gdbInfoBuffer[i] .. "|"
+					end
 
 					--show breakpoints gutter
 					gdbDebugBp.Buf:ClearMessages("[gdb]")
 					for j = 1, #gdbBreakpoints, 1 do
-							if(tonumber(gdbBreakpoints[i]) ~= lineOfBreakpoint) then
-								gdbDebugBp.Buf:AddMessage(buffer.NewMessageAtLine("[gdb]", "hit2", gdbBreakpoints[j], buffer.MTInfo))
-							end
+						if(tonumber(gdbBreakpoints[j]) ~= lineOfBreakpoint) then
+							gdbDebugBp.Buf:AddMessage(buffer.NewMessageAtLine("[gdb]", "", gdbBreakpoints[j], buffer.MTInfo))
+						end
 					end
-
-					--local tmp = ""
-					--for i = 1, #gdbInfoBuffer, 1 do
-					--	tmp = tmp .. gdbInfoBuffer[i] .. "|"
-					--end
-					gdbDebugBp.Buf:AddMessage(buffer.NewMessageAtLine("[gdb]", "hit", lineOfBreakpoint, buffer.MTError))			
+					gdbDebugBp.Buf:AddMessage(buffer.NewMessageAtLine("[gdb]", tmp, lineOfBreakpoint, buffer.MTError))			
 				end
 			end
-		--else
-		--	if(gdbAskedForInfoLocals == true) then
-		--		gdbInfoBuffer = lines
-		--		micro.InfoBar():Message(gdbInfoBuffer)
-		--		gdbAskedForInfoLocals = false
-		--	end		
-		--end
+		else
+			if(gdbAskedForInfoLocals == true) then
+				gdbInfoBuffer = lines
+				--micro.InfoBar():Message(gdbInfoBuffer)
+				gdbAskedForInfoLocals = false
+			end		
+		end
 end
 
 function onGdbStdError(errorStr, args)
@@ -181,8 +180,8 @@ function debug(bp)
 	end
 	
 	gdbJobHandle = shell.JobSpawn("gdb", jobArgs, onGdbStdout, onGdbStdout, onGdbStdout, nil)
-	micro.InfoBar():Message(gdbJobHandle)
-	micro.TermMessage(gdbJobHandle)
+	--micro.InfoBar():Message(gdbJobHandle)
+	--micro.TermMessage(gdbJobHandle)
 	
 end
 
